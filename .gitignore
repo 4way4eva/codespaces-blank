@@ -35,6 +35,10 @@ env/
 .DS_Store
 Thumbs.db
 
-# Example files (optional)
+# Example/demo files
 example_ledger.yaml
 example_ledger.json
+demo_ledger.yaml
+demo_ledger.json
+python_example_ledger.yaml
+python_example_ledger.json
