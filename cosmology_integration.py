@@ -154,8 +154,20 @@ class InvestorOutreachSystem:
         }
     
     def get_investors(self, tier: str = "tier_1_mega_funds") -> List[Dict]:
-        """Get list of investors by tier."""
-        return self.outreach_data.get("target_investors", {}).get(tier, [])
+        """Get list of investors by tier.
+        
+        Args:
+            tier: The investor tier to retrieve (e.g., 'tier_1_mega_funds')
+            
+        Returns:
+            List of investor dictionaries, or empty list if tier not found
+        """
+        investors = self.outreach_data.get("target_investors", {}).get(tier, [])
+        if not investors and tier not in self.outreach_data.get("target_investors", {}):
+            # Log warning but don't raise exception - return empty list
+            import warnings
+            warnings.warn(f"Investor tier '{tier}' not found in outreach data", UserWarning)
+        return investors
     
     def get_investor_by_name(self, name: str) -> Optional[Dict]:
         """Find an investor by name."""
@@ -216,18 +228,27 @@ class InvestorOutreachSystem:
     
     def _save_outreach(self) -> None:
         """Save outreach data to file."""
-        with open(self.outreach_file, 'w', encoding='utf-8') as f:
-            json.dump(self.outreach_data, f, indent=2, ensure_ascii=False)
+        try:
+            with open(self.outreach_file, 'w', encoding='utf-8') as f:
+                json.dump(self.outreach_data, f, indent=2, ensure_ascii=False)
+        except (IOError, PermissionError) as e:
+            raise IOError(f"Failed to save outreach data to {self.outreach_file}: {e}") from e
     
     def export_to_yaml(self, output_file: str) -> None:
         """Export outreach data to YAML format."""
-        with open(output_file, 'w', encoding='utf-8') as f:
-            yaml.dump(self.outreach_data, f, default_flow_style=False, allow_unicode=True)
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                yaml.dump(self.outreach_data, f, default_flow_style=False, allow_unicode=True)
+        except (IOError, PermissionError) as e:
+            raise IOError(f"Failed to export to YAML file {output_file}: {e}") from e
     
     def export_to_json(self, output_file: str, indent: int = 2) -> None:
         """Export outreach data to JSON format."""
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(self.outreach_data, f, indent=indent, ensure_ascii=False)
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(self.outreach_data, f, indent=indent, ensure_ascii=False)
+        except (IOError, PermissionError) as e:
+            raise IOError(f"Failed to export to JSON file {output_file}: {e}") from e
 
 
 class IntegratedCodexSystem:

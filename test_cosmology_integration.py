@@ -114,7 +114,7 @@ class TestBiblicalCosmologySystem(unittest.TestCase):
         self.assertIn("status", status)
         self.assertEqual(status["status"], "LIVE_SYNCED_ACTIVE")
         self.assertIn("devices_count", status)
-        self.assertEqual(status["devices_count"], 7)
+        self.assertEqual(status["devices_count"], EXPECTED_DEVICES_COUNT)
     
     def test_export_to_yaml(self):
         """Test YAML export."""
@@ -143,6 +143,12 @@ class TestBiblicalCosmologySystem(unittest.TestCase):
                 os.remove(temp_file)
 
 
+# Constants for testing
+EXPECTED_TIER1_INVESTORS = 5
+EXPECTED_DEVICES_COUNT = 7
+EXPECTED_HEALTH_STACKS = ["bioresp", "bleuwallet", "delayed_cord_protocol", "cordai_sop", "prophetic_healing"]
+
+
 class TestInvestorOutreachSystem(unittest.TestCase):
     """Test cases for InvestorOutreachSystem."""
     
@@ -160,7 +166,7 @@ class TestInvestorOutreachSystem(unittest.TestCase):
         """Test getting tier 1 investors."""
         investors = self.system.get_investors("tier_1_mega_funds")
         self.assertIsInstance(investors, list)
-        self.assertEqual(len(investors), 5)
+        self.assertEqual(len(investors), EXPECTED_TIER1_INVESTORS)
         self.assertIn("name", investors[0])
     
     def test_get_investor_by_name_a16z(self):
@@ -188,14 +194,14 @@ class TestInvestorOutreachSystem(unittest.TestCase):
         """Test getting QR codes."""
         qr_codes = self.system.get_qr_codes()
         self.assertIsInstance(qr_codes, list)
-        self.assertEqual(len(qr_codes), 5)
+        self.assertEqual(len(qr_codes), EXPECTED_TIER1_INVESTORS)
         self.assertTrue(all(qr["tracking_enabled"] for qr in qr_codes))
     
     def test_get_tracking_links(self):
         """Test getting tracking links."""
         links = self.system.get_tracking_links()
         self.assertIsInstance(links, list)
-        self.assertEqual(len(links), 5)
+        self.assertEqual(len(links), EXPECTED_TIER1_INVESTORS)
         for link in links:
             self.assertIn("tracking_params", link)
             self.assertIn("utm_source", link["tracking_params"])
@@ -337,7 +343,7 @@ class TestIntegratedCodexSystem(unittest.TestCase):
     def test_outreach_access(self):
         """Test accessing outreach through integrated system."""
         investors = self.system.outreach.get_investors()
-        self.assertEqual(len(investors), 5)
+        self.assertEqual(len(investors), EXPECTED_TIER1_INVESTORS)
 
 
 class TestSystemIntegration(unittest.TestCase):
@@ -373,7 +379,7 @@ class TestSystemIntegration(unittest.TestCase):
         outreach_stacks = outreach_integration.get("health_stacks_backing", {})
         
         # Verify consistency
-        for stack_name in ["bioresp", "bleuwallet", "delayed_cord_protocol", "cordai_sop", "prophetic_healing"]:
+        for stack_name in EXPECTED_HEALTH_STACKS:
             self.assertIn(stack_name, cosmology_stacks)
             self.assertIn(stack_name, outreach_stacks)
             
